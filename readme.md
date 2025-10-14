@@ -146,7 +146,7 @@ It provides authentication **(JWT + refresh tokens in cookies)**, role-based acc
 - GET /api/order
     - Get all orders for the current user (with order items + product info).
 
-## **File Uploads & Access**
+### **File Uploads & Access**
 
 - Uploaded images are stored locally under uploads/:
     - uploads/products/ for product images
