@@ -94,10 +94,8 @@ It provides authentication **(JWT + refresh tokens in cookies)**, role-based acc
 
 - GET /api/user/all
     - Admin only. Pagination & search supported (?page=&limit=&search=).
-
 - GET /api/user/me
     - Get current user (auth required).
-
 - PATCH /api/user/me
     - Update current us- er (auth required). Accepts multipart avatar (file) + other fields (firstName, lastName, email, password, userRole — role change limited).
     - When uploading new avatar, old file is removed from disk.
