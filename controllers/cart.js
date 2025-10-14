@@ -19,7 +19,7 @@ const getCart = async (req, res, next) => {
     }
 }
 
-const addItem = async (req, res, next) => {quantity
+const addItem = async (req, res, next) => {
     const userId = req.user.id;
     const { productId } = req.body;
     try{

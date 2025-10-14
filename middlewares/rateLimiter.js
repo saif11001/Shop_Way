@@ -3,7 +3,7 @@ const httpStatusText = require("../utils/httpStatusText");
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 10,
     handler: (req, res) => {
         res.status(429).json({
         status: httpStatusText.FAIL,

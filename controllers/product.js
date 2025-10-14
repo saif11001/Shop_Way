@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { Op } = require('sequelize');
 const Product = require('../models/product');
 const httpStatusText = require('../utils/httpStatusText');
@@ -30,7 +32,7 @@ const getProducts = async (req, res, next) => {
         });
 
         if (products.length <= 0) {
-            return res.status(404).json({ status: httpStatusText.FAIL, message: "No products found.", data: { products: [] } });
+            return res.status(200).json({ status: httpStatusText.FAIL, message: "No products found.", data: { products: [] } });
         }
         const totalPages = Math.ceil(totalProducts / limit);
     
@@ -79,6 +81,7 @@ const addProduct = async (req, res, next) => {
             quantity: quantity,
             UserId: userId,
             CategoryId: categoryId,
+            image: req.file ? req.file.path : null
         });
         res.status(201).json({ status: httpStatusText.SUCCESS, message: 'Add Product successfully.', data: { product } });
 
@@ -107,8 +110,19 @@ const updateProduct = async (req, res, next) => {
         if(brand){product.brand = brand};
         if(status){product.status = status};
         if(quantity){product.quantity = quantity};
-        if(categoryId){product.categoryId = categoryId};
-
+        if(categoryId){product.CategoryId = categoryId};
+        if (req.file) {
+            if (product.image) {
+                const oldImagePath = path.join(__dirname, '..', product.image);
+                fs.unlink(oldImagePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting old image:', err);
+                    }
+                });
+            }
+            product.image = req.file.path
+        };
+        
         await product.save();
         res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Update category successfully.', data: { product } });
 
@@ -128,7 +142,14 @@ const deleteProduct = async (req, res, next) => {
         if(userId !== product.UserId) {
             return res.status(403).json({ status: httpStatusText.FAIL, message: 'You are not authorized to delete this product.' });
         }
-
+        if (product.image) {
+            const imagePath = path.join(__dirname, '..', product.image); 
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                console.error('Error deleting product image:', err.message);
+                }
+            });
+        }
         await product.destroy();
         res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Delete product successfully.' });
 

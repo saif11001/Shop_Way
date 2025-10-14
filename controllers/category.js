@@ -77,7 +77,7 @@ const updateCategory = async (req, res, next) => {
         }
 
         if (category.name === 'Other') {
-            return res.status(404).json({ status: httpStatusText.FAIL, message: "You cannot update the default category 'Other'." });
+            return res.status(400).json({ status: httpStatusText.FAIL, message: "You cannot update the default category 'Other'." });
         }
 
         if( category.name === name) {
@@ -101,31 +101,56 @@ const updateCategory = async (req, res, next) => {
 
 const deleteCategory = async (req, res, next) => {
     const categoryId = req.params.id;
+    const BATCH_SIZE = 100;
+    const t = await sequelize.transaction();
     try{
-        const category = await Category.findByPk(categoryId);
+        const category = await Category.findByPk(categoryId, { transaction: t });
 
         if(!category) {
+            await t.rollback();
             return res.status(404).json({ status: httpStatusText.FAIL, message: 'Category not found !' });
         }
 
         if (category.name === 'Other') {
+            await t.rollback();
             return res.status(400).json({ status: httpStatusText.FAIL, message: "You cannot delete the default category 'Other'." });
         }
 
-        const defaultCategory = await Category.findOne({ where: { name: 'Other' } });
+        const defaultCategory = await Category.findOne({ where: { name: 'Other' }, transaction: t });
         if(!defaultCategory) {
+            await t.rollback();
             return res.status(400).json({ status: httpStatusText.FAIL, message: 'Default category (Other) not found. Please create it first.' });
         }
 
-        const products = await Product.findAll({ where: { CategoryId: categoryId } });
-        if(products.length > 0) {
-            await Product.update({ CategoryId: defaultCategory.id }, { where: { CategoryId: categoryId } });
-        }
+        let offset = 0;
+        let productsBatch;
+        do {
+            productsBatch = await Product.findAll({
+                where: { CategoryId: categoryId },
+                limit: BATCH_SIZE,
+                offset,
+                transaction: t
+            });
 
-        await category.destroy();
+            if (productsBatch.length > 0) {
+                const productIds = productsBatch.map(p => p.id);
+
+                await Product.update(
+                    { CategoryId: defaultCategory.id },
+                    { where: { id: productIds }, transaction: t }
+                );
+
+                offset += BATCH_SIZE;
+            }
+        } while (productsBatch.length > 0)
+        
+        await category.destroy({ transaction: t });
+        await t.commit();
+
         res.status(200).json({ status: httpStatusText.SUCCESS , message: "Category deleted successfully and related products moved to 'Other'." });
 
     } catch (error) {
+        await t.rollback();
         next(error);
     }
 }

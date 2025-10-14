@@ -7,6 +7,7 @@ const userRole = require('../utils/userRole');
 const validate = require('../middlewares/validate/validateProduct');
 const handleValidationErrors = require('../middlewares/validate/handleValidationErrors');
 const { productCategoryLimiter } = require('../middlewares/rateLimiter');
+const upload = require('../middlewares/upload');
 
 const router = express.Router();
 
@@ -24,6 +25,7 @@ router.post('/',
     validate.add_Product,
     handleValidationErrors,
     productCategoryLimiter,
+    upload.single('image'),
     productController.addProduct
 );
 
@@ -33,6 +35,7 @@ router.put('/:id',
     validate.update_Product,
     handleValidationErrors,
     productCategoryLimiter,
+    upload.single('image'),
     productController.updateProduct
 );
 

@@ -23,7 +23,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(helmet());
-
+app.use("/uploads", express.static("uploads"));
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
@@ -66,6 +66,7 @@ app.use((error, req, res, next) => {
         });
         
     } catch (error) {
-        logger.info('error ==> ', error);
+        logger.info('Database connection failed: ', error);
+        process.exit(1);
     }
 })();

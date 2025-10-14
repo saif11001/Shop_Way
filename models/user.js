@@ -35,6 +35,10 @@ const User = sequelize.define('User', {
             allowNull: false,
             defaultValue: userRole.USER,
         },
+        avatar: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         refreshToken: {
             type: Sequelize.TEXT,
             allowNull: true

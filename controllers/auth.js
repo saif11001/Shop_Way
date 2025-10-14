@@ -17,7 +17,8 @@ const register = async (req, res, next) => {
             lastName: lastName,
             email: email,
             password: hashpassword,
-            userRole: userRole
+            userRole: userRole,
+            avatar: req.file ? req.file.path : null
         });
         
         const accessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' });
@@ -46,7 +47,8 @@ const register = async (req, res, next) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                userRole: user.userRole
+                userRole: user.userRole,
+                avatar: user.avatar
             }});
 
     } catch (error) {
@@ -93,7 +95,8 @@ const login = async (req, res, next) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                userRole: user.userRole
+                userRole: user.userRole,
+                avatar: user.avatar
             }})
 
     } catch (error) {

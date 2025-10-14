@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
+const fs = require('fs');
+const path = require('path');
 const User = require('../models/user');
 const httpStatusText = require('../utils/httpStatusText');
 const Order = require('../models/order');
@@ -94,6 +96,15 @@ const updateUser = async (req, res, next) => {
             user.password = hashpassword;
             user.refreshToken = null;
         }
+        if(req.file) {
+            if (user.avatar) {
+                const oldPath = path.join(__dirname, '..', user.avatar);
+                fs.unlink(oldPath, (err) => {
+                    if (err) console.error("Error deleting old avatar:", err);
+                });
+            }
+            user.avatar = req.file.path;
+        }
         await user.save();
         
         res.clearCookie("accessToken");
@@ -112,9 +123,15 @@ const deleteUser = async (req, res, next) => {
         if(!user) {
             return res.status(404).json({ status: httpStatusText.FAIL, message: 'User not found !' });
         }
+        if (user.avatar) {
+            const avatarPath = path.join(__dirname, '..', user.avatar);
+            fs.unlink(avatarPath, (err) => {
+                if (err) console.error("Error deleting avatar:", err);
+            });
+        }
         if(user.userRole === "user") {
             const order = await Order.findAll({ where: { UserId: userId } });
-            if(order) {
+            if(order.length > 0) {
                 return res.status(404).json({ status: httpStatusText.FAIL, message: "You can't delete you information, please try again when your orders are finished." });
             };
             await User.destroy();

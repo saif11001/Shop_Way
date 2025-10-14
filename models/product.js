@@ -40,8 +40,12 @@ const Product = sequelize.define('Product',
             defaultValue: 0,
             validate: { min: 0 }
         },
+        image: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         CategoryId: {
-            type: DataTypes.INTEGER,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'Categories',

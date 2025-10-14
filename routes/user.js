@@ -8,6 +8,7 @@ const validate = require('../middlewares/validate/validateUser');
 const handleValidationErrors = require('../middlewares/validate/handleValidationErrors');
 const rateLimit = require("express-rate-limit");
 const { authLimiter } = require('../middlewares/rateLimiter');
+const upload = require('../middlewares/upload');
 
 const router = express.Router();
 
@@ -24,6 +25,7 @@ router.get('/me',
 
 router.patch('/me',
     verifyToken,
+    upload.single('avatar'),
     validate.update_User,
     handleValidationErrors,
     authLimiter,
