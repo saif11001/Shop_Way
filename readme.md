@@ -37,7 +37,7 @@ It provides authentication **(JWT + refresh tokens in cookies)**, role-based acc
 
 ## Project Structure
 
-![Project Structure](./docs/my_diagram2.png)
+![Project Structure](./docs/my_diagram.png)
 
 ---
 
