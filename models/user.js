@@ -45,26 +45,8 @@ const User = sequelize.define('User', {
         },
     },
     {
-        defaultScope: {
-            attributes: { exclude: ["password", "refreshToken"] }
-        },
-        scopes: {
-            withPassword: { attributes: {} }
-        },
         timestamps: true
     }
 )
-
-User.beforeCreate(async (user) => {
-    if (user.password) {
-        user.password = await bcrypt.hash(user.password, 10);
-    }
-});
-
-User.beforeUpdate(async (user) => {
-    if (user.changed("password")) {
-        user.password = await bcrypt.hash(user.password, 10);
-    }
-});
 
 module.exports = User;

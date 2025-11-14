@@ -35,6 +35,12 @@ It provides authentication **(JWT + refresh tokens in cookies)**, role-based acc
 
 ---
 
+### Using Postman
+
+**URL for published documentation:** https://documenter.getpostman.com/view/38702841/2sB3WvMxia
+
+---
+
 ## Project Structure
 
 ![Project Structure](./docs/my_diagram.png)

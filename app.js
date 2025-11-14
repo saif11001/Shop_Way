@@ -1,16 +1,13 @@
-require('dotenv').config()
 const express = require('express');
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 
 const sequelize = require('./config/DB');
+const { port } = require('./config/index');
 require('./models/associations');
-const httpStatusText = require('./utils/httpStatusText');
 const initDefaultCategory = require("./utils/initDefaultCategory");
 const logger = require("./utils/logger");
-
-const PORT = process.env.PORT || 6060;
 
 const app = express();
 
@@ -32,12 +29,12 @@ const productRoutes = require('./routes/product');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/order');
 
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/category', categoryRoutes);
-app.use('/api/product', productRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/order', orderRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/category', categoryRoutes);
+app.use('/api/v1/product', productRoutes);
+app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/order', orderRoutes);
 
 app.use((error, req, res, next) => {
     console.error(error, "Unhandled error occurred");
@@ -54,13 +51,13 @@ app.use((error, req, res, next) => {
         await sequelize.authenticate();
         logger.info("Database connected successfully!");
 
-        await sequelize.sync({ alter: true }); 
+        await sequelize.sync(); 
             logger.info("All models were synchronized successfully.");
 
             await initDefaultCategory();
             
-            app.listen(PORT, () => {
-                logger.info(`Server running at http://localhost:${PORT}`
+            app.listen(port, () => {
+                logger.info(`Server running at http://localhost:${port}`
             );
 
         });

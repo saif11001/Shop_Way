@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const config = require('../config/index');
 const httpStatusText = require('../utils/httpStatusText');
 const User = require('../models/user');
 
@@ -7,7 +8,7 @@ const verifyToken = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
     try{
         if(accessToken) {
-            const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
+            const decoded = jwt.verify(accessToken, config.jwt.accessSecret);
             req.user = decoded;
             return  next();
         }
@@ -22,7 +23,7 @@ const verifyToken = async (req, res, next) => {
         return res.status(401).json({ status: httpStatusText.FAIL, message: "Access token expired and no refresh token available." })
     }
     try{
-        const decodedRefreshToken = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const decodedRefreshToken = jwt.verify(refreshToken, config.jwt.refreshSecret);
 
 
         const user = await User.findOne({ where: { id: decodedRefreshToken.id } });
@@ -32,8 +33,8 @@ const verifyToken = async (req, res, next) => {
             return res.status(403).json({ status: httpStatusText.FAIL, message: "Invalid refresh token. Please login again." });
         }
 
-        const newAccessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' } );
-        const newRefreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '10d' });
+        const newAccessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, config.jwt.accessSecret, { expiresIn: config.jwt.accessExpiry } );
+        const newRefreshToken = jwt.sign({ id: user.id }, config.jwt.refreshSecret, { expiresIn: config.jwt.refreshExpiry });
 
         user.refreshToken = newRefreshToken;
         await user.save();
@@ -51,7 +52,7 @@ const verifyToken = async (req, res, next) => {
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
 
-        req.user = jwt.verify(newAccessToken, process.env.JWT_SECRET_KEY);
+        req.user = jwt.verify(newAccessToken, config.jwt.accessSecret);
         next();
 
     } catch (error) {

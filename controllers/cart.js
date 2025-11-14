@@ -7,11 +7,13 @@ const formatCart  = require("../utils/cartUtils");
 
 const getCart = async (req, res, next) => {
     try{
-        const { formattedCart, totalPrice } = await formatCart(req.user.id);
-        if (!formattedCart || totalPrice == 0 ) {
-            return res.status(200).json({ status: "success", message: "Your cart is empty", data: [] });
+        const userId = req.user.id;
+        const cartData = await formatCart(userId);
+        if (!cartData || !cartData.formattedCart ) {
+            return res.status(200).json({ status: "success", message: "Your cart is empty", data: { CartItems: [] }, totalPrice: 0 });
         }
-
+        
+        const { formattedCart, totalPrice } = cartData;
         res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Cart fetched successfully.', data: formattedCart, totalPrice });
 
     } catch (error) {
@@ -48,12 +50,17 @@ const addItem = async (req, res, next) => {
         
             product.quantity -= 1;
             await product.save({ transaction: t });
+        })
 
-            const { formattedCart, totalPrice } = await formatCart(userId);
-
-            return res.status(201).json({ status: httpStatusText.SUCCESS, message: 'Product added to cart successfully', data: { formattedCart, totalPrice } });
-        });
+        const cartData = await formatCart(userId);
         
+        if (!cartData) {
+            return res.status(500).json({  status: httpStatusText.ERROR,  message: 'Failed to fetch cart after adding item' });
+        }
+
+        const { formattedCart, totalPrice } = cartData;
+        return res.status(201).json({ status: httpStatusText.SUCCESS, message: 'Product added to cart successfully',  data: { cart: formattedCart, totalPrice } });
+                
     } catch (error) {
         next(error);
     }

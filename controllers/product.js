@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const { Op } = require('sequelize');
 const Product = require('../models/product');
@@ -113,8 +113,8 @@ const updateProduct = async (req, res, next) => {
         if(categoryId){product.CategoryId = categoryId};
         if (req.file) {
             if (product.image) {
-                const oldImagePath = path.join(__dirname, '..', product.image);
-                fs.unlink(oldImagePath, (err) => {
+                const imagePath = path.join(__dirname, '..', product.image);
+                await fs.unlink(imagePath, (err) => {
                     if (err) {
                         console.error('Error deleting old image:', err);
                     }
@@ -144,12 +144,9 @@ const deleteProduct = async (req, res, next) => {
         }
         if (product.image) {
             const imagePath = path.join(__dirname, '..', product.image); 
-            fs.unlink(imagePath, (err) => {
-                if (err) {
-                console.error('Error deleting product image:', err.message);
-                }
-            });
+            await fs.unlink(imagePath);
         }
+        
         await product.destroy();
         res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Delete product successfully.' });
 

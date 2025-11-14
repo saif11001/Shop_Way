@@ -22,20 +22,20 @@ router.get('/:id',
 router.post('/',
     verifyToken,
     allowedTo(userRole.MANAGER),
+    upload.single('image'),
     validate.add_Product,
     handleValidationErrors,
     productCategoryLimiter,
-    upload.single('image'),
     productController.addProduct
 );
 
 router.put('/:id',
     verifyToken,
     allowedTo(userRole.MANAGER),
+    upload.single('image'),
     validate.update_Product,
     handleValidationErrors,
     productCategoryLimiter,
-    upload.single('image'),
     productController.updateProduct
 );
 

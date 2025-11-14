@@ -1,10 +1,10 @@
-require('dotenv').config();
+const { db } = require('./index');
 
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT
+const sequelize = new Sequelize(db.database, db.user, db.password, {
+    host: db.host ,
+    dialect: db.dialect
 });
 
 module.exports = sequelize;

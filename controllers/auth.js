@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const httpStatusText = require('../utils/httpStatusText');
+const config = require('../config/index');
 
 const register = async (req, res, next) => {
     const { firstName, lastName, email, password, userRole } = req.body;
@@ -21,8 +22,8 @@ const register = async (req, res, next) => {
             avatar: req.file ? req.file.path : null
         });
         
-        const accessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '10d' });
+        const accessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, config.jwt.accessSecret, { expiresIn: config.jwt.accessExpiry });
+        const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshSecret , { expiresIn: config.jwt.refreshExpiry });
 
         user.refreshToken = refreshToken;
         await user.save();
@@ -69,8 +70,8 @@ const login = async (req, res, next) => {
             return res.status(401).json({ status: httpStatusText.FAIL, message: 'Incorrect password.' });
         }
 
-        const accessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '10d'});
+        const accessToken = jwt.sign({ id: user.id, email: user.email, userRole: user.userRole }, config.jwt.accessSecret, { expiresIn: config.jwt.accessExpiry });
+        const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshSecret, { expiresIn: config.jwt.refreshExpiry });
 
         user.refreshToken = refreshToken;
         await user.save();

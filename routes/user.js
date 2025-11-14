@@ -32,7 +32,7 @@ router.patch('/me',
     userController.updateUser
 );
 
-router.delete('/',
+router.delete('/me',
     verifyToken,
     userController.deleteUser
 );

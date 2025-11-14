@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const Category = require('../models/category');
 const Product = require('../models/product');
 const httpStatusText = require('../utils/httpStatusText');
+const sequelize = require('../config/DB');
 
 const getCategories = async(req, res, next) => {
     const { page = 1, limit = 2, sort = "createdAt", search } = req.query;

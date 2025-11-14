@@ -52,6 +52,8 @@ const getAllUsers = async(req, res, next) => {
 }
 
 const getUser = async (req, res, next) => {
+    console.log("Decoded user from token:", req.user);
+
     const userId = req.user.id;
     try{
         const user = await User.findByPk(userId, { attributes: { exclude: ['password', 'refreshToken'] } });
@@ -130,11 +132,11 @@ const deleteUser = async (req, res, next) => {
             });
         }
         if(user.userRole === "user") {
-            const order = await Order.findAll({ where: { UserId: userId } });
-            if(order.length > 0) {
-                return res.status(404).json({ status: httpStatusText.FAIL, message: "You can't delete you information, please try again when your orders are finished." });
+            const orders = await Order.findAll({ where: { UserId: userId } });
+            if(orders.length > 0) {
+                return res.status(400).json({ status: httpStatusText.FAIL, message: "You can't delete you information, please try again when your orders are finished." });
             };
-            await User.destroy();
+            await user.destroy();
 
         } else if (user.userRole === "manager") {
             await Product.update(
