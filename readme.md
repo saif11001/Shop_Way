@@ -100,4 +100,3 @@ It provides authentication **(JWT + refresh tokens in cookies)**, role-based acc
 
 - LinkedIn: [linkedin.com/in/saif-eldeen-sobhy](https://www.linkedin.com/in/saif-eldeen-sobhy/)  
 - Email: saifeldeen409@gmail.com
-- Postman: https://documenter.getpostman.com/view/38702841/2sB3WvMxia
